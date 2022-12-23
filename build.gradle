@@ -20,7 +20,7 @@ subprojects {
     }
 
     shadowJar {
-        def toRelocate = [/*"org.jetbrains.annotations", "org.intellij.lang"*/]
+        def toRelocate = ["io.netty"]
 
         toRelocate.forEach {
             relocate(it, "net.deltapvp.lunarclient.lib.${it}")
