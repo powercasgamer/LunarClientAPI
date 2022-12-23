@@ -1,5 +1,5 @@
 dependencies {
-    compileOnly(projects.lunarclientNethandler)
+    implementation(projects.lunarclientNethandler)
     compileOnly(libs.annotations)
     compileOnly(libs.spigot)
 }
