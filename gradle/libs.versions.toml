@@ -1,0 +1,22 @@
+[versions]
+annotations = "23.1.0"
+gson = "2.10"
+guava = "31.1-jre"
+titan = "1.0.93-SNAPSHOT"
+indra = "3.1.0-FIX-JAVA-SNAPSHOT"
+spigot = "1.8.8-R0.1-SNAPSHOT"
+netty = "4.1.30.Final"
+
+[libraries]
+annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
+spigot = { module = "org.github.paperspigot:paperspigot", version.ref = "spigot" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
+
+[plugins]
+titan = { id = "net.deltapvp.titan", version.ref = "titan" }
+indra = { id = "net.deltapvp.indra", version.ref = "indra" }
+indra-publishing = { id = "net.deltapvp.indra.publishing", version.ref = "indra" }
+
+[bundles]

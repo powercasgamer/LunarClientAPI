@@ -1,0 +1,58 @@
+plugins {
+    alias(libs.plugins.indra.publishing)
+    alias(libs.plugins.indra)
+    alias(libs.plugins.titan)
+}
+
+group("net.deltapvp.lunarclient")
+
+subprojects {
+    apply plugin: "net.deltapvp.indra.publishing"
+    apply plugin: "net.deltapvp.indra"
+    apply plugin: "net.deltapvp.titan"
+
+    repositories {
+        mavenCentral()
+        maven {
+            url("https://repo.deltapvp.net")
+        }
+        mavenLocal()
+    }
+
+    shadowJar {
+        def toRelocate = [/*"org.jetbrains.annotations", "org.intellij.lang"*/]
+
+        toRelocate.forEach {
+            relocate(it, "net.deltapvp.lunarclient.lib.${it}")
+        }
+    }
+
+    indra {
+        apache2License()
+        github("powercasgamer", "LunarClientAPI")
+        javaVersions {
+            testWith(8)
+            target(8)
+            minimumToolchain(17)
+        }
+
+        configurePublications {
+            pom {
+                developers {
+                    developer {
+                        id = "powercas_gamer"
+                        timezone = "Europe/Amsterdam"
+                    }
+                }
+            }
+
+            versionMapping {
+                usage(Usage.JAVA_API) { fromResolutionOf(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME) }
+                usage(Usage.JAVA_RUNTIME) { fromResolutionResult() }
+            }
+        }
+
+        publishReleasesTo("delta", "https://reposilite.deltapvp.net/releases/")
+        publishSnapshotsTo("delta", "https://reposilite.deltapvp.net/snapshots/")
+    }
+}

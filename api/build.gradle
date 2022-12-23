@@ -1,0 +1,7 @@
+dependencies {
+    compileOnly(libs.annotations)
+    compileOnly(libs.spigot)
+    compileOnly(projects.lunarclientNethandler)
+//    compileOnly 'org.projectlombok:lombok:1.18.24'
+//    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+}

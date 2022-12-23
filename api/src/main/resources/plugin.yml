@@ -1,0 +1,8 @@
+name: LunarClient-API
+version: ${pluginVersion}
+description: A server interface for the Lunar Client
+author: ${pluginAuthor}
+main: com.lunarclient.bukkitapi.LunarClientAPI
+load: STARTUP
+api-version: 1.13
+website: https://github.com/powercasgamer/bukkitapi
