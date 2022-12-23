@@ -16,7 +16,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "LunarClientParent"
 sequenceOf(
     "api",
-    "nethandler",
+    "nethandler"
 ).forEach {
     include("lunarclient-$it")
     project(":lunarclient-$it").projectDir = file(it)
