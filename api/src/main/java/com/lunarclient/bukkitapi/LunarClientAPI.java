@@ -371,12 +371,13 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
     public String getWorldIdentifier(@NotNull final World world) {
         final UUID worldIdentifier = world.getUID();
 
-        final Optional<Function<World, String>> id = Optional.ofNullable(this.worldIdentifiers.get(worldIdentifier));
-        if (id.isPresent()) {
-            return id.get().apply(world);
-        } else {
-            return worldIdentifier.toString();
+        if (worldIdentifier == null) {
+            return UUID.randomUUID().toString();
         }
+
+        return this.worldIdentifiers.containsKey(worldIdentifier)
+                ? this.worldIdentifiers.get(worldIdentifier).apply(world)
+                : worldIdentifier.toString();
     }
 
     /**
@@ -471,13 +472,15 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
 
     public void loadWaypoints() {
         // if we don't have waypoints, don't continue.
-        if (!getConfig().contains("waypoints")) {
+        if (!getConfig().getBoolean("waypoints.enabled", false)) {
             return;
         }
 
         // Get all the list of waypoints
-        final List<Map<?, ?>> maps = getConfig().getMapList("waypoints");
+        final List<Map<?, ?>> maps = getConfig().getMapList("waypoints.list");
+        if (maps.isEmpty()) return;
         for (final Map<?, ?> map : maps) {
+            if (map.isEmpty()) return;
             // Create the waypoint.
             // This is super brittle, and could be done better most likely.
             for (final Map.Entry<?, ?> entry : map.entrySet()) {

@@ -63,7 +63,9 @@ server-rules:
 # otherwise the plugin will likely not work when loading.
 # Here is an example of one:
 waypoints:
-  - Spawn: # The same name as the waypoint.
+  enabled: false
+  list:
+    - Spawn: # The same name as the waypoint.
       x: 0 # Must be a number, -inf->inf. No decimals. No quotes.
       y: 100 # Must be a number, 0->255. No decimals. No quotes.
       z: 0 # Must be a number, -inf->inf. No decimals. No quotes.
