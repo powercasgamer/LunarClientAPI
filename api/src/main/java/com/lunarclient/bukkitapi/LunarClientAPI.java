@@ -19,22 +19,28 @@
  */
 package com.lunarclient.bukkitapi;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.lunarclient.bukkitapi.event.LCPacketReceivedEvent;
 import com.lunarclient.bukkitapi.event.LCPacketSentEvent;
 import com.lunarclient.bukkitapi.event.LCPlayerUnregisterEvent;
 import com.lunarclient.bukkitapi.listener.LunarClientLoginListener;
 import com.lunarclient.bukkitapi.nethandler.LCPacket;
 import com.lunarclient.bukkitapi.nethandler.client.*;
+import com.lunarclient.bukkitapi.nethandler.client.obj.ModSettings;
+import com.lunarclient.bukkitapi.nethandler.client.obj.ServerRule;
 import com.lunarclient.bukkitapi.nethandler.server.LCNetHandlerServer;
 import com.lunarclient.bukkitapi.nethandler.shared.LCPacketWaypointAdd;
 import com.lunarclient.bukkitapi.nethandler.shared.LCPacketWaypointRemove;
 import com.lunarclient.bukkitapi.object.LCWaypoint;
 import com.lunarclient.bukkitapi.object.StaffModule;
+import com.lunarclient.bukkitapi.serverrule.LunarClientAPIServerRule;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
@@ -51,7 +57,7 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
     public static final String MESSAGE_CHANNEL = "lunarclient:pm";
     public static final ChatColor[] CHAT_COLORS = ChatColor.values();
     public static final Material[] MATERIALS = Material.values();
-    public static final boolean ASYNC_PACKETS = Boolean.getBoolean("lunarclient.async-packets");
+    public static boolean ASYNC_PACKETS;
 
     private static LunarClientAPI instance;
 
@@ -61,8 +67,12 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
     private final Map<UUID, List<LCPacket>> packetQueue = new HashMap<>();
     private final Map<UUID, Function<World, String>> worldIdentifiers = new HashMap<>();
 
+    // BukkitImpl Stuff
+    private LCPacketModSettings packetModSettings = null;
+    private final List<LCWaypoint> waypoints = new ArrayList<>();
+
     private final String asyncMessage = "\n" +
-            "We will attempt to send packets async, if this causes errors disable it using the system property 'lunarclient.async-packets'" +
+            "We will attempt to send packets async, if this causes errors disable it in the config" +
             "\n" +
             "This is an experimental feature, if you encounter any errors please report them onto our github.";
 
@@ -73,6 +83,8 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
     @Override
     public void onLoad() {
         instance = this;
+        saveDefaultConfig();
+        ASYNC_PACKETS = getConfig().getBoolean("misc.async-packets");
         if (ASYNC_PACKETS) getLogger().warning(this.asyncMessage);
     }
 
@@ -82,12 +94,24 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
 
         this.registerPluginChannel(MESSAGE_CHANNEL);
         this.getServer().getPluginManager().registerEvents(new LunarClientLoginListener(this), this);
+
+        loadWaypoints();
+        loadServerRules();
+        loadDisabledMods();
     }
 
     @Override
     public void onDisable() {
-        // kick players?
-        //Bukkit.getOnlinePlayers().forEach(plr -> plr.kickPlayer("Contact an administrator if this is an error.\n\nError Code: LUNARDISABLE"));
+        Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
+        Bukkit.getMessenger().unregisterOutgoingPluginChannel(this);
+        HandlerList.unregisterAll((JavaPlugin) this);
+        this.playersRunningLunarClient.clear();
+        this.playersNotRegistered.clear();
+        this.worldIdentifiers.clear();
+        this.packetQueue.clear();
+        this.waypoints.clear();
+        this.packetModSettings = null;
+        Bukkit.getScheduler().cancelTasks(this);
         instance = null;
     }
 
@@ -278,7 +302,7 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
      * @param position The location (x, y, z) of where the hologram will be placed in the world.
      * @param lines    The lines of the hologram to be sent to the player.
      */
-    public void addHologram(@NotNull final Player player, @NotNull final UUID id, @NotNull final Vector position, @NotNull final String @NotNull[] lines) {
+    public void addHologram(@NotNull final Player player, @NotNull final UUID id, @NotNull final Vector position, @NotNull final String @NotNull [] lines) {
         this.sendPacket(player, new LCPacketHologram(id, position.getX(), position.getY(), position.getZ(), Arrays.asList(lines)));
     }
 
@@ -289,7 +313,7 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
      * @param id     The ID of the previously placed hologram.
      * @param lines  The new lines to show to the player.
      */
-    public void updateHologram(@NotNull final Player player, @NotNull final UUID id, @NotNull final String @NotNull[] lines) {
+    public void updateHologram(@NotNull final Player player, @NotNull final UUID id, @NotNull final String @NotNull [] lines) {
         this.sendPacket(player, new LCPacketHologramUpdate(id, Arrays.asList(lines)));
     }
 
@@ -347,9 +371,12 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
     public String getWorldIdentifier(@NotNull final World world) {
         final UUID worldIdentifier = world.getUID();
 
-        return this.worldIdentifiers.containsKey(worldIdentifier)
-                ? this.worldIdentifiers.get(worldIdentifier).apply(world)
-                : worldIdentifier.toString();
+        final Optional<Function<World, String>> id = Optional.ofNullable(this.worldIdentifiers.get(worldIdentifier));
+        if (id.isPresent()) {
+            return id.get().apply(world);
+        } else {
+            return worldIdentifier.toString();
+        }
     }
 
     /**
@@ -384,6 +411,16 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
      */
     public void removeWaypoint(@NotNull final Player player, @NotNull final LCWaypoint waypoint) {
         this.sendPacket(player, new LCPacketWaypointRemove(waypoint.getName(), waypoint.getWorld()));
+    }
+
+    /**
+     * Send a notification to a lunar client player
+     *
+     * @param player       A player running lunar client
+     * @param notification The notification to send to the player
+     */
+    public void sendNotification(@NotNull final Player player, @NotNull final LCPacketNotification notification) {
+        this.sendPacket(player, notification);
     }
 
     /**
@@ -430,5 +467,68 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
 
     public void setNetHandlerServer(@NotNull final LCNetHandlerServer netHandlerServer) {
         this.netHandlerServer = netHandlerServer;
+    }
+
+    public void loadWaypoints() {
+        // if we don't have waypoints, don't continue.
+        if (!getConfig().contains("waypoints")) {
+            return;
+        }
+
+        // Get all the list of waypoints
+        final List<Map<?, ?>> maps = getConfig().getMapList("waypoints");
+        for (final Map<?, ?> map : maps) {
+            // Create the waypoint.
+            // This is super brittle, and could be done better most likely.
+            for (final Map.Entry<?, ?> entry : map.entrySet()) {
+                final JsonObject object = new JsonParser().parse(String.valueOf(entry.getValue())).getAsJsonObject();
+
+                final LCWaypoint waypoint = new LCWaypoint(object.get("name").getAsString(), object.get("x").getAsInt(), object.get("y").getAsInt(), object.get("z").getAsInt(), getWorldIdentifier(Bukkit.getWorld(object.get("world").getAsString())), object.get("color").getAsInt(), object.get("forced").getAsBoolean(), object.get("visible").getAsBoolean());
+                this.waypoints.add(waypoint);
+            }
+        }
+    }
+
+    /**
+     * We are going to load the server rules from the config, and
+     * then immediately set them in the API and let that handle the
+     * caching for us. This will allow us to simply just call send
+     * once the player is registered.
+     */
+    private void loadServerRules() {
+        if (getConfig().contains("server-rules")) {
+            for (final ServerRule value : ServerRule.values()) {
+                if (getConfig().contains("server-rules." + value.name()) && getConfig().isBoolean("server-rules." + value.name())) {
+                    LunarClientAPIServerRule.setRule(value, getConfig().getBoolean("server-rules." + value.name()));
+                }
+            }
+        }
+    }
+
+    /**
+     * We are going to load the disabled mods from the config, and
+     * cache the packet until we have users who have registered.
+     * <p>
+     * Once they registered, we will send the packet. We only
+     * want to have 1 packet we send to a lot of users.
+     */
+    private void loadDisabledMods() {
+        // If we have the disabled mods key, and it's a list we want to set mod settings.
+        if (getConfig().contains("force-disabled-mods") && getConfig().isList("force-disabled-mods")) {
+            final ModSettings modSettings = new ModSettings();
+            // Go through all the items in the list, and disable each mod.
+            for (final String modId : getConfig().getStringList("force-disabled-mods")) {
+                modSettings.addModSetting(modId, new ModSettings.ModSetting(false, new HashMap<>()));
+            }
+            this.packetModSettings = new LCPacketModSettings(modSettings);
+        }
+    }
+
+    public LCPacketModSettings getPacketModSettings() {
+        return this.packetModSettings;
+    }
+
+    public List<LCWaypoint> getWaypoints() {
+        return this.waypoints;
     }
 }

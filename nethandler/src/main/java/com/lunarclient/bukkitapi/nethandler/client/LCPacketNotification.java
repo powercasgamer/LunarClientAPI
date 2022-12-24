@@ -21,6 +21,7 @@ package com.lunarclient.bukkitapi.nethandler.client;
 
 import com.lunarclient.bukkitapi.nethandler.ByteBufWrapper;
 import com.lunarclient.bukkitapi.nethandler.LCPacket;
+import com.lunarclient.bukkitapi.nethandler.client.obj.NotificationLevel;
 import com.lunarclient.bukkitapi.nethandler.shared.LCNetHandler;
 
 import java.io.IOException;
@@ -32,6 +33,10 @@ public final class LCPacketNotification extends LCPacket {
     private String level;
 
     public LCPacketNotification() {
+    }
+
+    public LCPacketNotification(final String message, final long durationMs, final NotificationLevel level) {
+        this(message, durationMs, level.name());
     }
 
     public LCPacketNotification(final String message, final long durationMs, final String level) {

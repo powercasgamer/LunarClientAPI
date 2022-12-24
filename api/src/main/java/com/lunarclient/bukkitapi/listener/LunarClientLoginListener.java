@@ -22,6 +22,8 @@ package com.lunarclient.bukkitapi.listener;
 import com.lunarclient.bukkitapi.LunarClientAPI;
 import com.lunarclient.bukkitapi.event.LCPlayerRegisterEvent;
 import com.lunarclient.bukkitapi.nethandler.client.LCPacketUpdateWorld;
+import com.lunarclient.bukkitapi.object.LCWaypoint;
+import com.lunarclient.bukkitapi.serverrule.LunarClientAPIServerRule;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -47,6 +49,18 @@ public class LunarClientLoginListener implements Listener {
                 this.lunarClientAPI.failPlayerRegister(player);
             }
         }, 2 * 20L);
+
+        if (this.lunarClientAPI.getPacketModSettings() != null) {
+            LunarClientAPI.getInstance().sendPacket(event.getPlayer(), this.lunarClientAPI.getPacketModSettings());
+        }
+
+        LunarClientAPIServerRule.sendServerRule(event.getPlayer());
+
+        if (!this.lunarClientAPI.getWaypoints().isEmpty()) {
+            for (final LCWaypoint waypoint : this.lunarClientAPI.getWaypoints()) {
+                LunarClientAPI.getInstance().sendWaypoint(event.getPlayer(), waypoint);
+            }
+        }
     }
 
     @EventHandler
