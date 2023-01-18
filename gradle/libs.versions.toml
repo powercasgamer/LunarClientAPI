@@ -1,5 +1,5 @@
 [versions]
-annotations = "23.1.0"
+annotations = "24.0.0"
 gson = "2.10"
 guava = "31.1-jre"
 titan = "1.0.93-SNAPSHOT"
