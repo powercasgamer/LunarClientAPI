@@ -2,7 +2,7 @@
 annotations = "23.1.0"
 gson = "2.10"
 guava = "31.1-jre"
-titan = "1.0.93-SNAPSHOT"
+titan = "1.0.113"
 indra = "3.1.0-FIX-JAVA-SNAPSHOT"
 spigot = "1.8.8-R0.1-SNAPSHOT"
 netty = "4.1.30.Final"
