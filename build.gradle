@@ -56,6 +56,11 @@ subprojects {
         publishReleasesTo("delta", "https://reposilite.deltapvp.net/releases/")
         publishSnapshotsTo("delta", "https://reposilite.deltapvp.net/snapshots/")
     }
+
+    signing {
+        useGpgCmd()
+        sign(configurations.archives)
+    }
 }
 
 release {
@@ -70,9 +75,4 @@ release {
     }
 }
 
-signing {
-    useGpgCmd()
-    sign(configurations.archives)
-}
-
-project.tasks.named("afterReleaseBuild").get().finalizedBy(project.tasks.named("publish").get())
+project.tasks.named("afterReleaseBuild").get().finalizedBy(project.tasks.getByName("publish"))
