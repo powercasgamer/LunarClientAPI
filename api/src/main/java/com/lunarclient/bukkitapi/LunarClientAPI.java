@@ -474,20 +474,16 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
         // Get all the list of waypoints
         final ConfigurationSection section = getConfig().getConfigurationSection("waypoints.list");
         for (final String key : section.getKeys(false)) {
-            System.out.println(key);
             final String name = section.getString(key + ".name");
             final int x = section.getInt(key + ".x");
             final int y = section.getInt(key + ".y");
             final int z = section.getInt(key + ".z");
             final String worldName = section.getString(key + ".world");
-            System.out.println(worldName);
             final World world = Bukkit.getWorld(worldName);
             if (world == null) {
                 throw new IllegalStateException("The world with the name '" + worldName + "' is null!");
             }
-            System.out.println(world);
             final String worldId = getWorldIdentifier(world);
-            System.out.println(worldId);
             final int color = section.getInt(key + ".color");
             final boolean forced = section.getBoolean(key + ".forced", true);
             final boolean visible = section.getBoolean(key + ".visible", true);
