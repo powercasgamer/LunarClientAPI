@@ -1,6 +1,6 @@
 name: LunarClient-API
 version: ${pluginVersion}
-description: A server interface for the Lunar Client
+description: ${pluginDescription}
 author: ${pluginAuthor}
 main: com.lunarclient.bukkitapi.LunarClientAPI
 load: STARTUP

@@ -1,8 +1,8 @@
 /*
  * LunarClientAPI
- * Copyright (c) 2022 Moonsworth
- * Copyright (c) 2022 powercas_gamer
- * Copyright (c) 2022 contributors
+ * Copyright (c) 2022-2023 Moonsworth
+ * Copyright (c) 2022-2023 powercas_gamer
+ * Copyright (c) 2022-2023 contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -113,6 +113,7 @@ public final class LCWaypoint {
 
     @Override
     public boolean equals(final Object o) {
+        if (!(o instanceof LCWaypoint)) return false;
         return Objects.equal(this, o);
     }
 

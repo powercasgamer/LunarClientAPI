@@ -1,8 +1,8 @@
 /*
  * LunarClientAPI
- * Copyright (c) 2022 Moonsworth
- * Copyright (c) 2022 powercas_gamer
- * Copyright (c) 2022 contributors
+ * Copyright (c) 2022-2023 Moonsworth
+ * Copyright (c) 2022-2023 powercas_gamer
+ * Copyright (c) 2022-2023 contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
  */
 package com.lunarclient.bukkitapi;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.lunarclient.bukkitapi.event.LCPacketReceivedEvent;
 import com.lunarclient.bukkitapi.event.LCPacketSentEvent;
 import com.lunarclient.bukkitapi.event.LCPlayerUnregisterEvent;
@@ -39,6 +37,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -60,21 +59,17 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
     public static boolean ASYNC_PACKETS;
 
     private static LunarClientAPI instance;
-
-    private LCNetHandlerServer netHandlerServer = new LunarClientDefaultNetHandler();
     private final Set<UUID> playersRunningLunarClient = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private final Set<UUID> playersNotRegistered = new HashSet<>();
     private final Map<UUID, List<LCPacket>> packetQueue = new HashMap<>();
     private final Map<UUID, Function<World, String>> worldIdentifiers = new HashMap<>();
-
+    private final List<LCWaypoint> waypoints = new ArrayList<>();
+    private final String asyncMessage = "We will attempt to send packets async, if this causes errors disable it in the config" +
+            "\n" +
+            "This is an experimental feature, if you encounter any errors please report them on our github.";
+    private LCNetHandlerServer netHandlerServer = new LunarClientDefaultNetHandler();
     // BukkitImpl Stuff
     private LCPacketModSettings packetModSettings = null;
-    private final List<LCWaypoint> waypoints = new ArrayList<>();
-
-    private final String asyncMessage = "\n" +
-            "We will attempt to send packets async, if this causes errors disable it in the config" +
-            "\n" +
-            "This is an experimental feature, if you encounter any errors please report them onto our github.";
 
     public static LunarClientAPI getInstance() {
         return LunarClientAPI.instance;
@@ -221,7 +216,7 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
      * @return An unmodifiableSet of the players currently running lunar client.
      */
     public Set<Player> getPlayersRunningLunarClient() {
-        return Collections.unmodifiableSet(this.playersRunningLunarClient.stream().map(Bukkit::getPlayer).collect(Collectors.toSet()));
+        return this.playersRunningLunarClient.stream().map(Bukkit::getPlayer).collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -477,18 +472,35 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
         }
 
         // Get all the list of waypoints
-        final List<Map<?, ?>> maps = getConfig().getMapList("waypoints.list");
-        if (maps.isEmpty()) return;
-        for (final Map<?, ?> map : maps) {
-            if (map.isEmpty()) return;
-            // Create the waypoint.
-            // This is super brittle, and could be done better most likely.
-            for (final Map.Entry<?, ?> entry : map.entrySet()) {
-                final JsonObject object = new JsonParser().parse(String.valueOf(entry.getValue())).getAsJsonObject();
-
-                final LCWaypoint waypoint = new LCWaypoint(object.get("name").getAsString(), object.get("x").getAsInt(), object.get("y").getAsInt(), object.get("z").getAsInt(), getWorldIdentifier(Bukkit.getWorld(object.get("world").getAsString())), object.get("color").getAsInt(), object.get("forced").getAsBoolean(), object.get("visible").getAsBoolean());
-                this.waypoints.add(waypoint);
+        final ConfigurationSection section = getConfig().getConfigurationSection("waypoints.list");
+        for (final String key : section.getKeys(false)) {
+            System.out.println(key);
+            final String name = section.getString(key + ".name");
+            final int x = section.getInt(key + ".x");
+            final int y = section.getInt(key + ".y");
+            final int z = section.getInt(key + ".z");
+            final String worldName = section.getString(key + ".world");
+            System.out.println(worldName);
+            final World world = Bukkit.getWorld(worldName);
+            if (world == null) {
+                throw new IllegalStateException("The world with the name '" + worldName + "' is null!");
             }
+            System.out.println(world);
+            final String worldId = getWorldIdentifier(world);
+            System.out.println(worldId);
+            final int color = section.getInt(key + ".color");
+            final boolean forced = section.getBoolean(key + ".forced", true);
+            final boolean visible = section.getBoolean(key + ".visible", true);
+            this.waypoints.add(new LCWaypoint(
+                    name,
+                    x,
+                    y,
+                    z,
+                    worldId,
+                    color,
+                    forced,
+                    visible
+            ));
         }
     }
 
@@ -503,6 +515,9 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
             for (final ServerRule value : ServerRule.values()) {
                 if (getConfig().contains("server-rules." + value.name()) && getConfig().isBoolean("server-rules." + value.name())) {
                     LunarClientAPIServerRule.setRule(value, getConfig().getBoolean("server-rules." + value.name()));
+                }
+                if (!getConfig().contains("server-rules." + value.name())) {
+                    getConfig().set("server-rules." + value.name(), false);
                 }
             }
         }

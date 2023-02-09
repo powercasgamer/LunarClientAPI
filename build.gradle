@@ -1,10 +1,12 @@
 plugins {
     alias(libs.plugins.indra.publishing)
     alias(libs.plugins.indra)
+    alias(libs.plugins.release)
     alias(libs.plugins.titan)
 }
 
 group("net.deltapvp.lunarclient")
+description("A server interface for the Lunar Client")
 
 subprojects {
     apply plugin: "net.deltapvp.indra.publishing"
@@ -16,7 +18,6 @@ subprojects {
         maven {
             url("https://repo.deltapvp.net")
         }
-        mavenLocal()
     }
 
     shadowJar {
@@ -31,8 +32,8 @@ subprojects {
         apache2License()
         github("powercasgamer", "LunarClientAPI")
         javaVersions {
-            testWith(8)
-            target(8)
+            testWith(11)
+            target(11)
             minimumToolchain(17)
         }
 
@@ -56,3 +57,22 @@ subprojects {
         publishSnapshotsTo("delta", "https://reposilite.deltapvp.net/snapshots/")
     }
 }
+
+release {
+    failOnSnapshotDependencies(false)
+    preTagCommitMessage("Release: ")
+    tagCommitMessage("Release: ")
+    newVersionCommitMessage("New Snapshot: ")
+    git {
+        requireBranch = "master"
+        commitVersionFileOnly = false
+        signTag = true
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign(configurations.archives)
+}
+
+project.tasks.named("afterReleaseBuild").get().finalizedBy(project.tasks.named("publish").get())

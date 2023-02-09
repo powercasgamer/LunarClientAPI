@@ -1,8 +1,8 @@
 /*
  * LunarClientAPI
- * Copyright (c) 2022 Moonsworth
- * Copyright (c) 2022 powercas_gamer
- * Copyright (c) 2022 contributors
+ * Copyright (c) 2022-2023 Moonsworth
+ * Copyright (c) 2022-2023 powercas_gamer
+ * Copyright (c) 2022-2023 contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -138,7 +138,9 @@ public class LCCooldown implements LCPacketWrapper<LCPacketCooldown> {
         this.item = item;
     }
 
+    @Override
     public boolean equals(final Object o) {
+        if (!(o instanceof LCCooldown)) return false;
         return Objects.equals(this, o);
     }
 
@@ -146,10 +148,12 @@ public class LCCooldown implements LCPacketWrapper<LCPacketCooldown> {
         return other instanceof LCCooldown;
     }
 
+    @Override
     public int hashCode() {
         return Objects.hashCode(this);
     }
 
+    @Override
     public String toString() {
         return "LCCooldown(name=" + this.getName() + ", millis=" + this.getMillis() + ", item=" + this.getItem() + ", itemId=" + this.getItemId() + ", packet=" + this.getPacket() + ")";
     }

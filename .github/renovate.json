@@ -4,15 +4,5 @@
     ":dependencyDashboard"
   ],
   "ignoreDeps": [],
-  "packageRules": [
-    {
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "matchPackagePrefixes": [
-        "com.github.ben-manes.caffeine:caffeine"
-      ],
-      "enabled": false
-    }
-  ]
+  "packageRules": []
 }
