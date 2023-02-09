@@ -12,6 +12,7 @@ subprojects {
     apply plugin: "net.deltapvp.indra.publishing"
     apply plugin: "net.deltapvp.indra"
     apply plugin: "net.deltapvp.titan"
+    apply plugin: "com.faendir.gradle.release"
 
     repositories {
         mavenCentral()
