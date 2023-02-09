@@ -12,7 +12,6 @@ subprojects {
     apply plugin: "net.deltapvp.indra.publishing"
     apply plugin: "net.deltapvp.indra"
     apply plugin: "net.deltapvp.titan"
-    apply plugin: "com.faendir.gradle.release"
 
     repositories {
         mavenCentral()
@@ -75,5 +74,4 @@ release {
         signTag = true
     }
 }
-
 project.tasks.named("afterReleaseBuild").get().finalizedBy(project.tasks.getByName("publish"))
