@@ -10,6 +10,10 @@ concurrency:
   group: "${{ github.workflow }}-${{ github.event.number || github.ref }}"
   cancel-in-progress: false
 
+permissions:
+  actions: "write"
+  contents: "read"
+
 jobs:
   build:
     # Only run on PRs if the source branch is on someone else's repo
@@ -23,6 +27,10 @@ jobs:
     steps:
       - name: "checkout repository"
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: true
+
       - name: Make wrapper executable
         run: |
           chmod +x gradlew
@@ -62,7 +70,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-reports
-          path: build/reports/
+          path: |
+            build/reports/
+            */build/reports/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
