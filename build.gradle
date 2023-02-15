@@ -74,9 +74,5 @@ release {
         signTag = true
     }
 }
-project.tasks.named("afterReleaseBuild").get().finalizedBy(project.tasks.getByName("publish"))
 
-buildScan {
-    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-    termsOfServiceAgree = 'yes'
-}
+project.tasks.named("afterReleaseBuild").get().finalizedBy(project.tasks.getByName("publish"))
