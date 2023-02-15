@@ -66,6 +66,7 @@ jobs:
         with:
           cache-read-only: "${{ !startsWith(github.ref, 'refs/heads/master/') || github.event_name == 'pull_request' }}"
           arguments: "build --stacktrace --scan"
+
       - name: Upload build reports
         uses: actions/upload-artifact@v3
         with:
