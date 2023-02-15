@@ -34,10 +34,7 @@ import com.lunarclient.bukkitapi.nethandler.shared.LCPacketWaypointRemove;
 import com.lunarclient.bukkitapi.object.LCWaypoint;
 import com.lunarclient.bukkitapi.object.StaffModule;
 import com.lunarclient.bukkitapi.serverrule.LunarClientAPIServerRule;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -281,8 +278,8 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
         for (final Map.Entry<UUID, Map<String, Double>> entry : packet.getPlayers().entrySet()) {
             final UUID uuid = entry.getKey();
             final Player player = Bukkit.getPlayer(uuid);
-            if (player == null) {
-                getLogger().warning(String.format("The player connected to UUID %s is null", uuid));
+            if (player == null || !player.isOnline()) {
+                getLogger().warning(String.format("The player connected to UUID %s is null or offline", uuid));
                 return; // maybe?
             }
             if (player.getWorld().getUID().equals(sendingTo.getWorld().getUID())) {
@@ -477,11 +474,11 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
         final ConfigurationSection section = getConfig().getConfigurationSection("waypoints.list");
         for (final String key : section.getKeys(false)) {
             final String name = section.getString(key + ".name");
-            final int x = section.getInt(key + ".x");
-            final int y = section.getInt(key + ".y");
-            final int z = section.getInt(key + ".z");
+            final int x = section.getInt(key + ".x", 0);
+            final int y = section.getInt(key + ".y", 80);
+            final int z = section.getInt(key + ".z", 0);
             final String worldName = section.getString(key + ".world");
-            final World world = Bukkit.getWorld(worldName);
+            final World world = Bukkit.getWorld(Objects.requireNonNull(worldName));
             if (world == null) {
                 throw new IllegalStateException("The world with the name '" + worldName + "' is null!");
             }

@@ -88,6 +88,11 @@ public class LunarClientLoginListener implements Listener {
         this.lunarClientAPI.unregisterPlayer(event.getPlayer(), true);
     }
 
+    @EventHandler
+    public void onUnregister3(final PlayerKickEvent event) {
+        this.lunarClientAPI.unregisterPlayer(event.getPlayer(), true);
+    }
+
     @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onWorldChange(final PlayerChangedWorldEvent event) {
         updateWorld(event.getPlayer());

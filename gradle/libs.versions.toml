@@ -1,18 +1,16 @@
 [versions]
 annotations = "24.0.0"
 gson = "2.10.1"
-guava = "31.1-jre"
-titan = "1.1.4"
+titan = "1.1.5"
 indra = "3.1.1-FIX-JAVA-SNAPSHOT"
-spigot = "1.8.8-R0.1-SNAPSHOT"
+paper = "1.8.8-R0.1-SNAPSHOT"
 netty = "4.1.89.Final"
 release = "3.3.1"
 
 [libraries]
 annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
-spigot = { module = "org.github.paperspigot:paperspigot", version.ref = "spigot" }
+paper = { module = "org.github.paperspigot:paperspigot", version.ref = "paper" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
-guava = { module = "com.google.guava:guava", version.ref = "guava" }
 netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
 
 [plugins]

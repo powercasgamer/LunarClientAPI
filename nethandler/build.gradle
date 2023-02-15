@@ -1,5 +1,5 @@
 dependencies {
     compileOnly(libs.annotations)
-    implementation(libs.netty.all) // compileOnly?
+    implementation(libs.netty.all)
     compileOnly(libs.gson)
 }

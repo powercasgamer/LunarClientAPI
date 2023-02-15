@@ -29,7 +29,7 @@ subprojects {
     }
 
     indra {
-        apache2License()
+        gpl3OrLaterLicense()
         github("powercasgamer", "LunarClientAPI")
         javaVersions {
             testWith(8, 11, 17)
