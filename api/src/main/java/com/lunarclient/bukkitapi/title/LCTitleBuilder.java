@@ -141,7 +141,6 @@ public final class LCTitleBuilder {
         return this;
     }
 
-
     /**
      * Take all the inputs from the builder and convert
      * it into a single LCPacketTitle you can use to

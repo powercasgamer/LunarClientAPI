@@ -32,8 +32,8 @@ subprojects {
         apache2License()
         github("powercasgamer", "LunarClientAPI")
         javaVersions {
-            testWith(11)
-            target(11)
+            testWith(8, 11, 17)
+            target(8)
             minimumToolchain(17)
         }
 

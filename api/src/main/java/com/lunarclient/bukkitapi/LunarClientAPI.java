@@ -19,6 +19,7 @@
  */
 package com.lunarclient.bukkitapi;
 
+import com.google.common.collect.Sets;
 import com.lunarclient.bukkitapi.event.LCPacketReceivedEvent;
 import com.lunarclient.bukkitapi.event.LCPacketSentEvent;
 import com.lunarclient.bukkitapi.event.LCPlayerUnregisterEvent;
@@ -49,7 +50,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public final class LunarClientAPI extends JavaPlugin implements Listener {
 
@@ -87,7 +87,7 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
     public void onEnable() {
         if (ASYNC_PACKETS) getLogger().warning(this.asyncMessage);
 
-        this.registerPluginChannel(MESSAGE_CHANNEL);
+        this.registerPluginChannel();
         this.getServer().getPluginManager().registerEvents(new LunarClientLoginListener(this), this);
 
         loadWaypoints();
@@ -112,13 +112,11 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
 
     /**
      * Registers the bukkit plugin channel based on configuration of allowed players
-     *
-     * @param bukkitChannel The incoming plugin channel based on Minecraft Version.
      */
-    private void registerPluginChannel(@NotNull final String bukkitChannel) {
+    private void registerPluginChannel() {
         final Messenger messenger = getServer().getMessenger();
-        messenger.registerOutgoingPluginChannel(this, bukkitChannel);
-        messenger.registerIncomingPluginChannel(this, bukkitChannel, (channel, player, bytes) -> {
+        messenger.registerOutgoingPluginChannel(this, LunarClientAPI.MESSAGE_CHANNEL);
+        messenger.registerIncomingPluginChannel(this, LunarClientAPI.MESSAGE_CHANNEL, (channel, player, bytes) -> {
             final LCPacket packet = LCPacket.handle(bytes, player);
             if (packet == null) {
                 throw new RuntimeException("packet is null");
@@ -216,7 +214,11 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
      * @return An unmodifiableSet of the players currently running lunar client.
      */
     public Set<Player> getPlayersRunningLunarClient() {
-        return this.playersRunningLunarClient.stream().map(Bukkit::getPlayer).collect(Collectors.toUnmodifiableSet());
+        final Set<Player> players = Sets.newHashSet();
+        for (final UUID uuid : this.playersRunningLunarClient) {
+            players.add(Bukkit.getPlayer(uuid));
+        }
+        return Collections.unmodifiableSet(players);
     }
 
     /**
@@ -283,7 +285,7 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
                 getLogger().warning(String.format("The player connected to UUID %s is null", uuid));
                 return; // maybe?
             }
-            if (player.getWorld().equals(sendingTo.getWorld())) {
+            if (player.getWorld().getUID().equals(sendingTo.getWorld().getUID())) {
                 packet.getPlayers().remove(uuid);
             }
         }

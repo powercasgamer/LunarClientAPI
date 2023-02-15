@@ -67,8 +67,6 @@ public class LunarClientDefaultNetHandler implements LCNetHandlerServer {
     }
 
     // Do not implement these, they do nothing and will not work.
-
-
     /**
      * Deprecated entirely from a time when Emotes went through the server.
      */

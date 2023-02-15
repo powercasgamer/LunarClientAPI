@@ -39,7 +39,6 @@ public class LCCooldown implements LCPacketWrapper<LCPacketCooldown> {
     private Material item;
     private final int itemId;
     // The packet that will be sent to the Lunar Client player
-    // Because of @Data, we don't need a getter.
     private final LCPacketCooldown packet;
 
 

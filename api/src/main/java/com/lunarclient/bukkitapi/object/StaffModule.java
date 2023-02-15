@@ -19,6 +19,8 @@
  */
 package com.lunarclient.bukkitapi.object;
 
+import org.jetbrains.annotations.ApiStatus;
+
 /**
  * Lunar client has hidden StaffModule that can be
  * sent to a user at any given point.
@@ -36,9 +38,11 @@ package com.lunarclient.bukkitapi.object;
 public enum StaffModule {
 
     XRAY,
-    @Deprecated(forRemoval = true)
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     NAME_TAGS,
-    @Deprecated(forRemoval = true)
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     BUNNY_HOP
 
 }

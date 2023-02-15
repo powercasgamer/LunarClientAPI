@@ -58,7 +58,6 @@ server-rules:
   LEGACY_ENCHANTING: false
   LEGACY_COMBAT: false
 
-
 # All the fields with their types MUST be here for each waypoint,
 # otherwise the plugin will likely not work when loading.
 # Here is an example of one:
