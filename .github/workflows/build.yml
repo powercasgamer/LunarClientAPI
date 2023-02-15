@@ -18,6 +18,7 @@ jobs:
       matrix:
         java: ["17"]
         os: ["ubuntu-latest"]
+      fail-fast: true
     runs-on: "${{ matrix.os }}"
     steps:
       - name: "checkout repository"
@@ -46,6 +47,8 @@ jobs:
             ~/.gradle/jdks
             .gradle/loom-cache
             .gradle/caches/VanillaGradle
+            .gradle/caches/paperweight
+            */.gradle/caches/paperweight
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/libs.versions.*', '**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-deltapvp-
