@@ -63,9 +63,6 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
     private final Map<UUID, List<LCPacket>> packetQueue = new HashMap<>();
     private final Map<UUID, Function<World, String>> worldIdentifiers = new HashMap<>();
     private final List<LCWaypoint> waypoints = new ArrayList<>();
-    private final String asyncMessage = "We will attempt to send packets async, if this causes errors disable it in the config" +
-            "\n" +
-            "This is an experimental feature, if you encounter any errors please report them on our github.";
     private LCNetHandlerServer netHandlerServer = new LunarClientDefaultNetHandler();
     // BukkitImpl Stuff
     private LCPacketModSettings packetModSettings = null;
@@ -79,12 +76,14 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
         instance = this;
         saveDefaultConfig();
         ASYNC_PACKETS = getConfig().getBoolean("misc.async-packets");
-        if (ASYNC_PACKETS) getLogger().warning(this.asyncMessage);
     }
 
     @Override
     public void onEnable() {
-        if (ASYNC_PACKETS) getLogger().warning(this.asyncMessage);
+        if (ASYNC_PACKETS) {
+            getLogger().warning("We will attempt to send packets async, if this causes errors disable it in the config");
+            getLogger().warning("This is an experimental feature, if you encounter any errors please report them on our github.");
+        }
 
         this.registerPluginChannel();
         this.getServer().getPluginManager().registerEvents(new LunarClientLoginListener(this), this);

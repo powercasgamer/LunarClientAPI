@@ -47,7 +47,7 @@
 # replaymod - ReplayMod
 # nickHider - NickHider
 force-disabled-mods:
-  - "skyblockAddons" # Lets disable SkyBlockAddons mod for example.
+  #- "skyblockAddons" # Lets disable SkyBlockAddons mod for example.
 
 # The server rules that the server forces for the Lunar Client player.
 # A lot of these are cosmetics, and don't affect gameplay.
