@@ -92,17 +92,6 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
         loadWaypoints();
         loadServerRules();
         loadDisabledMods();
-
-        RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
-        if (provider != null) {
-            System.out.println("LuckPerms Provider not null");
-            LuckPerms api = provider.getProvider();
-            if (api == null) {
-                System.out.println("LuckPerms API is null");
-            }
-        } else {
-            System.out.println("LuckPerms provider is null");
-        }
     }
 
     @Override
