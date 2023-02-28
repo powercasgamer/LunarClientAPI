@@ -11,9 +11,16 @@ pluginManagement {
         mavenLocal()
     }
 }
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version("0.4.0")
+}
+
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 
 rootProject.name = "LunarClientParent"
+
 sequenceOf(
     "api",
     "nethandler"

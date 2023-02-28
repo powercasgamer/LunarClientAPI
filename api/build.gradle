@@ -2,4 +2,5 @@ dependencies {
     api(projects.lunarclientNethandler)
     compileOnly(libs.annotations)
     compileOnly(libs.paper)
+    compileOnly 'net.luckperms:api:5.4'
 }

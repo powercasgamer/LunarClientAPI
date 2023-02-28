@@ -34,11 +34,13 @@ import com.lunarclient.bukkitapi.nethandler.shared.LCPacketWaypointRemove;
 import com.lunarclient.bukkitapi.object.LCWaypoint;
 import com.lunarclient.bukkitapi.object.StaffModule;
 import com.lunarclient.bukkitapi.serverrule.LunarClientAPIServerRule;
+import net.luckperms.api.LuckPerms;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.util.Vector;
@@ -90,6 +92,17 @@ public final class LunarClientAPI extends JavaPlugin implements Listener {
         loadWaypoints();
         loadServerRules();
         loadDisabledMods();
+
+        RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
+        if (provider != null) {
+            System.out.println("LuckPerms Provider not null");
+            LuckPerms api = provider.getProvider();
+            if (api == null) {
+                System.out.println("LuckPerms API is null");
+            }
+        } else {
+            System.out.println("LuckPerms provider is null");
+        }
     }
 
     @Override
